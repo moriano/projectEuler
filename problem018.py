@@ -88,7 +88,6 @@ problem = [
     [04, 62, 98, 27, 23,  9, 70, 98, 73, 93, 38, 53, 60, 04, 23]
 ]
 
-
 def maximize(triangle):
 
     if len(triangle) == 1:
@@ -98,7 +97,7 @@ def maximize(triangle):
         second_last_row = triangle[len(triangle) - 2]
 
         for i in range(0, len(second_last_row)):
-            second_last_row[i] = second_last_row[i] + last_row[i] if second_last_row[i] + last_row[i] > second_last_row[i] + last_row[i+1] else second_last_row[i] + last_row[i+1]
+            second_last_row[i] = max(second_last_row[i] + last_row[i], second_last_row[i] + last_row[i+1])
 
         del(triangle[len(triangle)-1])
 
