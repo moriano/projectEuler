@@ -1,0 +1,124 @@
+"""
+
+The fraction 49/98 is a curious fraction, as an inexperienced mathematician in attempting to simplify it may incorrectly
+believe that 49/98 = 4/8, which is correct, is obtained by cancelling the 9s.
+
+We shall consider fractions like, 30/50 = 3/5, to be trivial examples.
+
+There are exactly four non-trivial examples of this type of fraction, less than one in value, and containing two digits
+in the numerator and denominator.
+
+If the product of these four fractions is given in its lowest common terms, find the value of the denominator.
+
+"""
+numbers = []
+more_numbers = []
+for i in range(10, 100):
+    numbers.append(i)
+
+max = -1
+candidates = []  # Each element is a list where the first element is the numerator, second is denominator
+for numerator_idx in range(0, len(numbers)):
+    numerator = numbers[numerator_idx]
+    for denominator_idx in range(0, len(numbers)):
+        denominator = numbers[denominator_idx]
+        division = numerator / denominator
+        if numerator != denominator and numerator % 10 > 0 and denominator % 10 > 0 and division < 1:
+            numerator_str = str(numerator)
+            denominator_str = str(denominator)
+
+            simplify_1 = None
+            simplify_2 = None
+            if numerator_str[0] == denominator_str[1]:
+                simplify_1 = int(numerator_str[0]) / int(denominator_str[1])
+
+            if numerator_str[1] == denominator_str[0]:
+                simplify_2 = int(numerator_str[0]) / int(denominator_str[1])
+
+            if simplify_1 == division or simplify_2 == division:
+                print("Candidate! %d/%d = %f" % (numerator, denominator, numerator/denominator))
+                candidates.append([numerator, denominator])
+
+final_numerator = 1
+final_denominator = 1
+
+for candidate in candidates:
+    final_numerator *= candidate[0]
+    final_denominator *= candidate[1]
+    if candidate[0] > max:
+        max = candidate[0]
+    if candidate[1] > max:
+        max = candidate[1]
+
+# Get all the primes smaller than max
+primes = {}  # Key is number, value a boolean indicating whether or not it is prime
+primes[2] = True
+for i in range(3, max, 2):
+    primes[i] = True
+
+# Apply Eratostenes sieve so we get all the primes...
+for i in range(3, max, 2):
+    not_prime = - 1
+    not_prime = i + i
+    primes[not_prime] = False
+    while not_prime < max:
+        primes[not_prime] = False
+        not_prime += i
+
+
+cleaned_primes = []
+for key, value in primes.items():
+    if value:
+        cleaned_primes.append(key)
+
+print("Final multiplication is %d/%d" % (final_numerator, final_denominator))
+
+# Now it is just time to decompose numerator and denominator into primes
+
+numerator_factors = {}  # Key is the base, value the exponent
+denominator_factors = {}  # Key is the base, value the exponent
+
+
+for prime in cleaned_primes:
+    divisible = True
+    while divisible:
+        if final_numerator % prime == 0:
+            final_numerator = final_numerator / prime
+            divisible = True
+            if prime in numerator_factors:
+                numerator_factors[prime] += 1
+            else:
+                numerator_factors[prime] = 1
+        else:
+            divisible = False
+
+    divisible = True
+    while divisible:
+        if final_denominator % prime == 0:
+            final_denominator = final_denominator / prime
+            divisible = True
+            if prime in denominator_factors:
+                denominator_factors[prime] += 1
+            else:
+                denominator_factors[prime] = 1
+        else:
+            divisible = False
+
+print(numerator_factors)
+print(denominator_factors)
+
+#  Simplify
+
+for base, exp in numerator_factors.items():
+    if base in denominator_factors:
+        if numerator_factors[base] >= denominator_factors[base]:
+            del(denominator_factors[base])
+        else:
+            denominator_factors[base] -= numerator_factors[base]
+
+print(denominator_factors)
+solution = 1
+for base, exp in denominator_factors.items():
+    solution *= base**exp
+
+print("Solution is %d" % solution)
